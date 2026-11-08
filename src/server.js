@@ -137,20 +137,13 @@ app.post('/api/config', (req, res) => {
       typeof body.notifyPhoneNumber === 'string'
         ? body.notifyPhoneNumber.trim()
         : current.notifyPhoneNumber,
-    notificationChannels: body.notificationChannels || current.notificationChannels,
+    userCarrier: body.userCarrier || current.userCarrier || 'google_fi',
+    notificationChannels: body.notificationChannels || current.notificationChannels || 'sms',
     watchedChats: body.watchedChats !== undefined ? body.watchedChats : current.watchedChats,
     detectionMode: body.detectionMode || current.detectionMode,
     aiProvider: body.aiProvider || current.aiProvider,
     geminiModel: body.geminiModel || current.geminiModel,
     openaiModel: body.openaiModel || current.openaiModel,
-    twilioAccountSid:
-      typeof body.twilioAccountSid === 'string'
-        ? body.twilioAccountSid.trim()
-        : current.twilioAccountSid,
-    twilioFromNumber:
-      typeof body.twilioFromNumber === 'string'
-        ? body.twilioFromNumber.trim()
-        : current.twilioFromNumber,
     autoNotify:
       typeof body.autoNotify === 'boolean' ? body.autoNotify : current.autoNotify,
     minConfidence:
@@ -160,18 +153,18 @@ app.post('/api/config', (req, res) => {
   };
 
   // Only update secret fields if non-masked values were submitted
+  if (typeof body.textbeltApiKey === 'string' && !body.textbeltApiKey.includes('••••')) {
+    updates.textbeltApiKey = body.textbeltApiKey.trim() || 'textbelt';
+  }
   if (typeof body.geminiApiKey === 'string' && !body.geminiApiKey.includes('••••')) {
     updates.geminiApiKey = body.geminiApiKey.trim();
   }
   if (typeof body.openaiApiKey === 'string' && !body.openaiApiKey.includes('••••')) {
     updates.openaiApiKey = body.openaiApiKey.trim();
   }
-  if (typeof body.twilioAuthToken === 'string' && !body.twilioAuthToken.includes('••••')) {
-    updates.twilioAuthToken = body.twilioAuthToken.trim();
-  }
 
   saveConfig(updates);
-  logActivity('config', 'Updated notification & scanner settings.');
+  logActivity('config', 'Updated Google Fi SMS notification & scanner settings.');
   res.json(getPublicConfig());
 });
 

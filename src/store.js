@@ -21,7 +21,9 @@ function getDefaultConfig() {
 
   return {
     notifyPhoneNumber: process.env.NOTIFY_PHONE_NUMBER || '',
-    notificationChannels: process.env.NOTIFICATION_CHANNELS || 'whatsapp', // 'whatsapp' | 'sms' | 'both'
+    userCarrier: process.env.USER_CARRIER || 'google_fi',
+    notificationChannels: process.env.NOTIFICATION_CHANNELS || 'sms', // 'sms' | 'whatsapp' | 'both'
+    textbeltApiKey: process.env.TEXTBELT_API_KEY || 'textbelt',
     watchedChats: watchedChats.length ? watchedChats : ['*'],
     detectionMode: process.env.DETECTION_MODE || 'hybrid', // 'hybrid' | 'ai' | 'rules'
     aiProvider: process.env.OPENAI_API_KEY && !process.env.GEMINI_API_KEY ? 'openai' : 'gemini',
@@ -29,9 +31,6 @@ function getDefaultConfig() {
     geminiModel: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
     openaiApiKey: process.env.OPENAI_API_KEY || '',
     openaiModel: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-    twilioAccountSid: process.env.TWILIO_ACCOUNT_SID || '',
-    twilioAuthToken: process.env.TWILIO_AUTH_TOKEN || '',
-    twilioFromNumber: process.env.TWILIO_FROM_NUMBER || '',
     autoNotify: true,
     minConfidence: 0.55
   };
@@ -70,6 +69,7 @@ function saveConfig(partialConfig) {
 
 function maskSecret(secret) {
   if (!secret || typeof secret !== 'string') return '';
+  if (secret === 'textbelt') return 'textbelt';
   if (secret.length <= 8) return '••••••••';
   return `${secret.slice(0, 4)}••••${secret.slice(-4)}`;
 }
@@ -78,14 +78,12 @@ function getPublicConfig() {
   const cfg = loadConfig();
   return {
     ...cfg,
+    textbeltApiKey: maskSecret(cfg.textbeltApiKey),
     geminiApiKey: maskSecret(cfg.geminiApiKey),
     openaiApiKey: maskSecret(cfg.openaiApiKey),
-    twilioAuthToken: maskSecret(cfg.twilioAuthToken),
+    hasTextbeltKey: Boolean(cfg.textbeltApiKey),
     hasGeminiKey: Boolean(cfg.geminiApiKey),
-    hasOpenaiKey: Boolean(cfg.openaiApiKey),
-    hasTwilioCredentials: Boolean(
-      cfg.twilioAccountSid && cfg.twilioAuthToken && cfg.twilioFromNumber
-    )
+    hasOpenaiKey: Boolean(cfg.openaiApiKey)
   };
 }
 

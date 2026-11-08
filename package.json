@@ -1,7 +1,7 @@
 {
   "name": "phillips_whatsapp_notifier",
   "version": "1.0.0",
-  "description": "Scans WhatsApp chats for talked-about events and messages the user's personal phone number via WhatsApp DM or Twilio SMS.",
+  "description": "Scans WhatsApp chats for talked-about events and texts the user's Google Fi phone number via Textbelt SMS.",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
@@ -17,7 +17,8 @@
     "event-detector",
     "notifier",
     "baileys",
-    "twilio",
+    "textbelt",
+    "google-fi",
     "gemini",
     "openai"
   ],

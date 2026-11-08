@@ -263,7 +263,7 @@ class WhatsAppManager {
   async sendDirectMessage(phoneDigits, text) {
     if (!this.sock || this.status !== 'connected') {
       throw new Error(
-        'WhatsApp is not currently connected. Scan the QR code in the dashboard or enable Twilio SMS.'
+        'WhatsApp is not currently connected. Scan the QR code in the dashboard or use SMS via Textbelt.'
       );
     }
     const cleanDigits = String(phoneDigits).replace(/[^\d]/g, '');

@@ -17,11 +17,9 @@
     selectDetectionMode: document.getElementById('select-detection-mode'),
     inputWatchedChats: document.getElementById('input-watched-chats'),
     checkboxAutoNotify: document.getElementById('checkbox-auto-notify'),
+    inputTextbeltKey: document.getElementById('input-textbelt-key'),
     inputGeminiKey: document.getElementById('input-gemini-key'),
     inputOpenaiKey: document.getElementById('input-openai-key'),
-    inputTwilioSid: document.getElementById('input-twilio-sid'),
-    inputTwilioToken: document.getElementById('input-twilio-token'),
-    inputTwilioFrom: document.getElementById('input-twilio-from'),
     btnTestNotify: document.getElementById('btn-test-notify'),
     configFeedback: document.getElementById('config-feedback'),
 
@@ -124,24 +122,22 @@
   function populateConfigForm(cfg) {
     if (!cfg) return;
     els.phoneTargetLabel.textContent = cfg.notifyPhoneNumber
-      ? `Alert Number: ${cfg.notifyPhoneNumber}`
-      : 'Alert Number: Not Set';
+      ? `Google Fi SMS: ${cfg.notifyPhoneNumber}`
+      : 'Google Fi SMS: Not Set';
 
     if (configLoadedOnce) return;
     configLoadedOnce = true;
 
     els.inputPhoneNumber.value = cfg.notifyPhoneNumber || '';
-    els.selectChannel.value = cfg.notificationChannels || 'whatsapp';
+    els.selectChannel.value = cfg.notificationChannels || 'sms';
     els.selectDetectionMode.value = cfg.detectionMode || 'hybrid';
     els.inputWatchedChats.value = Array.isArray(cfg.watchedChats)
       ? cfg.watchedChats.join(', ')
       : cfg.watchedChats || '*';
     els.checkboxAutoNotify.checked = cfg.autoNotify !== false;
+    els.inputTextbeltKey.value = cfg.textbeltApiKey || 'textbelt';
     els.inputGeminiKey.value = cfg.geminiApiKey || '';
     els.inputOpenaiKey.value = cfg.openaiApiKey || '';
-    els.inputTwilioSid.value = cfg.twilioAccountSid || '';
-    els.inputTwilioToken.value = cfg.twilioAuthToken || '';
-    els.inputTwilioFrom.value = cfg.twilioFromNumber || '';
   }
 
   function renderActivity(items = []) {
@@ -183,15 +179,15 @@
             ? ev.notificationHistory[0]
             : null;
 
-        let notifyBadge = `<span class="badge badge-pending">Not Notified Yet</span>`;
+        let notifyBadge = `<span class="badge badge-pending">Not Texted Yet</span>`;
         if (ev.notified) {
-          notifyBadge = `<span class="badge badge-notified">Phone Notified (${escapeHtml(
-            lastAttempt?.recipient || 'Sent'
+          notifyBadge = `<span class="badge badge-notified">SMS Sent (${escapeHtml(
+            lastAttempt?.recipient || 'Google Fi'
           )})</span>`;
         } else if (lastAttempt && lastAttempt.error) {
           notifyBadge = `<span class="badge badge-pending" title="${escapeHtml(
             lastAttempt.error
-          )}">Alert Pending</span>`;
+          )}">SMS Pending</span>`;
         }
 
         const pct = Math.round((ev.confidence || 0.75) * 100);
@@ -236,7 +232,7 @@
                   class="btn btn-outline btn-sm btn-notify-event"
                   data-id="${escapeHtml(ev.id)}"
                 >
-                  Message Phone Now
+                  Text My Phone Now
                 </button>
                 <button
                   type="button"
@@ -282,7 +278,7 @@
       const res = await fetch('/api/whatsapp/connect', { method: 'POST' });
       const data = await res.json();
       renderWhatsAppStatus(data);
-    } catch (err) {
+    } catch {
       els.btnWaConnect.disabled = false;
     }
   });
@@ -326,15 +322,14 @@
     e.preventDefault();
     const payload = {
       notifyPhoneNumber: els.inputPhoneNumber.value.trim(),
+      userCarrier: 'google_fi',
       notificationChannels: els.selectChannel.value,
       detectionMode: els.selectDetectionMode.value,
       watchedChats: els.inputWatchedChats.value.trim() || '*',
       autoNotify: els.checkboxAutoNotify.checked,
+      textbeltApiKey: els.inputTextbeltKey.value.trim() || 'textbelt',
       geminiApiKey: els.inputGeminiKey.value.trim(),
-      openaiApiKey: els.inputOpenaiKey.value.trim(),
-      twilioAccountSid: els.inputTwilioSid.value.trim(),
-      twilioAuthToken: els.inputTwilioToken.value.trim(),
-      twilioFromNumber: els.inputTwilioFrom.value.trim()
+      openaiApiKey: els.inputOpenaiKey.value.trim()
     };
 
     try {
@@ -348,9 +343,9 @@
       populateConfigForm(updated);
       showBanner(
         els.configFeedback,
-        `Saved configuration. Event alerts will be sent to ${
+        `Saved! Event SMS alerts will be texted to ${
           updated.notifyPhoneNumber || '(no number set yet)'
-        }.`
+        } (Google Fi via Textbelt).`
       );
       refreshStatusAndEvents();
     } catch (err) {
@@ -360,7 +355,7 @@
 
   els.btnTestNotify.addEventListener('click', async () => {
     els.btnTestNotify.disabled = true;
-    showBanner(els.configFeedback, 'Sending test notification to your phone number...');
+    showBanner(els.configFeedback, 'Sending test SMS via Textbelt to your Google Fi number...');
     try {
       const res = await fetch('/api/notify/test', {
         method: 'POST',
@@ -373,12 +368,10 @@
       if (result.success) {
         showBanner(
           els.configFeedback,
-          `Test notification delivered to ${result.recipient} via ${result.channelsAttempted.join(
-            ', '
-          )}!`
+          `Test SMS delivered to ${result.recipient} (Google Fi) via Textbelt!`
         );
       } else {
-        showBanner(els.configFeedback, `Test alert could not be sent: ${result.error}`, true);
+        showBanner(els.configFeedback, `Test SMS could not be sent: ${result.error}`, true);
       }
       refreshStatusAndEvents();
     } catch (err) {
@@ -474,7 +467,7 @@
     if (notifyBtn) {
       const eventId = notifyBtn.getAttribute('data-id');
       notifyBtn.disabled = true;
-      notifyBtn.textContent = 'Sending...';
+      notifyBtn.textContent = 'Texting...';
       try {
         const res = await fetch(`/api/events/${encodeURIComponent(eventId)}/notify`, {
           method: 'POST'
@@ -483,13 +476,13 @@
         if (!data.success) {
           showBanner(
             els.scanFeedback,
-            `Could not send phone notification: ${data.delivery?.error || 'Check phone settings'}`,
+            `Could not send SMS: ${data.delivery?.error || 'Check phone number'}`,
             true
           );
         } else {
           showBanner(
             els.scanFeedback,
-            `Sent event notification to ${data.delivery?.recipient}!`
+            `Sent SMS event alert to ${data.delivery?.recipient} (Google Fi)!`
           );
         }
         await refreshStatusAndEvents();
@@ -497,7 +490,7 @@
         showBanner(els.scanFeedback, `Error: ${err.message}`, true);
       } finally {
         notifyBtn.disabled = false;
-        notifyBtn.textContent = 'Message Phone Now';
+        notifyBtn.textContent = 'Text My Phone Now';
       }
       return;
     }

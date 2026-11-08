@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Phillips WhatsApp Notifier — Chat Event Scanner & Phone Alerts</title>
+    <title>Phillips WhatsApp Notifier — Chat Event Scanner & Google Fi SMS Alerts</title>
     <meta
       name="description"
-      content="Monitor WhatsApp group chats or scan exported chat logs to automatically detect upcoming events and message your personal phone number."
+      content="Monitor WhatsApp group chats or scan exported chat logs to automatically detect upcoming events and text your Google Fi phone number via Textbelt SMS."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -28,7 +28,7 @@
           <div>
             <h1 class="brand-title">Phillips WhatsApp Notifier</h1>
             <p class="brand-subtitle">
-              Scans WhatsApp chats for talked-about events &amp; messages your personal phone number
+              Scans WhatsApp chats for talked-about events &amp; texts your Google Fi phone number
             </p>
           </div>
         </div>
@@ -39,7 +39,7 @@
             <span id="wa-connection-label">WhatsApp: Disconnected</span>
           </div>
           <div id="phone-target-pill" class="status-chip">
-            <span id="phone-target-label">Alert Number: Not Set</span>
+            <span id="phone-target-label">Google Fi SMS: Not Set</span>
           </div>
         </div>
       </div>
@@ -54,7 +54,7 @@
             <div>
               <h2 class="panel-title">1. WhatsApp Chat Access</h2>
               <p class="panel-description">
-                Link WhatsApp via QR code to monitor live chats &amp; send direct WhatsApp alerts
+                Link WhatsApp via QR code to monitor live chats automatically
               </p>
             </div>
           </div>
@@ -92,9 +92,9 @@
         <article class="panel-card">
           <div class="panel-header">
             <div>
-              <h2 class="panel-title">2. Personal Phone &amp; Alert Settings</h2>
+              <h2 class="panel-title">2. Google Fi Phone &amp; SMS Alert Settings</h2>
               <p class="panel-description">
-                Configure where event notifications are sent and which chats to watch
+                Enter your Google Fi phone number to automatically receive SMS text alerts
               </p>
             </div>
           </div>
@@ -102,13 +102,13 @@
             <form id="config-form" class="form-grid">
               <div class="field-group">
                 <label class="field-label" for="input-phone-number">
-                  <span>Your Personal Phone Number</span>
-                  <span class="field-hint">E.164 format (e.g. +15551234567)</span>
+                  <span>Your Google Fi Phone Number</span>
+                  <span class="field-hint">10-digit number (e.g. 555-123-4567)</span>
                 </label>
                 <input
                   id="input-phone-number"
                   type="tel"
-                  placeholder="+15551234567"
+                  placeholder="555-123-4567"
                   autocomplete="tel"
                 />
               </div>
@@ -116,12 +116,12 @@
               <div class="field-row">
                 <div class="field-group">
                   <label class="field-label" for="select-channel">
-                    <span>Notification Channel</span>
+                    <span>Notification Delivery</span>
                   </label>
                   <select id="select-channel">
-                    <option value="whatsapp">WhatsApp Message (Free)</option>
-                    <option value="sms">SMS via Twilio</option>
-                    <option value="both">Both (WhatsApp + SMS)</option>
+                    <option value="sms">SMS Text Message (Google Fi via Textbelt)</option>
+                    <option value="whatsapp">WhatsApp Direct Message</option>
+                    <option value="both">Both (SMS Text + WhatsApp)</option>
                   </select>
                 </div>
 
@@ -151,15 +151,27 @@
 
               <label class="checkbox-row" for="checkbox-auto-notify">
                 <input id="checkbox-auto-notify" type="checkbox" checked />
-                <span>Automatically message my phone when a new event is detected</span>
+                <span>Automatically text my phone when a new event is detected</span>
               </label>
 
               <details class="settings-drawer">
-                <summary>Optional: AI API Keys (Gemini / OpenAI)</summary>
+                <summary>Advanced: Textbelt SMS &amp; AI API Keys</summary>
                 <div class="form-grid">
                   <div class="field-group">
+                    <label class="field-label" for="input-textbelt-key">
+                      <span>Textbelt API Key</span>
+                      <span class="field-hint">Defaults to "textbelt"</span>
+                    </label>
+                    <input
+                      id="input-textbelt-key"
+                      type="password"
+                      placeholder="textbelt"
+                      autocomplete="off"
+                    />
+                  </div>
+                  <div class="field-group">
                     <label class="field-label" for="input-gemini-key">
-                      <span>Google Gemini API Key</span>
+                      <span>Google Gemini API Key (Optional)</span>
                       <span class="field-hint">gemini-2.5-flash</span>
                     </label>
                     <input
@@ -171,7 +183,7 @@
                   </div>
                   <div class="field-group">
                     <label class="field-label" for="input-openai-key">
-                      <span>OpenAI API Key</span>
+                      <span>OpenAI API Key (Optional)</span>
                       <span class="field-hint">gpt-4o-mini</span>
                     </label>
                     <input
@@ -184,36 +196,12 @@
                 </div>
               </details>
 
-              <details class="settings-drawer">
-                <summary>Optional: Twilio SMS Credentials</summary>
-                <div class="form-grid">
-                  <div class="field-group">
-                    <label class="field-label" for="input-twilio-sid">
-                      <span>Twilio Account SID</span>
-                    </label>
-                    <input id="input-twilio-sid" type="text" placeholder="AC..." />
-                  </div>
-                  <div class="field-group">
-                    <label class="field-label" for="input-twilio-token">
-                      <span>Twilio Auth Token</span>
-                    </label>
-                    <input id="input-twilio-token" type="password" placeholder="Auth Token" />
-                  </div>
-                  <div class="field-group">
-                    <label class="field-label" for="input-twilio-from">
-                      <span>Twilio From Phone Number</span>
-                    </label>
-                    <input id="input-twilio-from" type="tel" placeholder="+15550001111" />
-                  </div>
-                </div>
-              </details>
-
               <div class="btn-row">
                 <button id="btn-save-config" type="submit" class="btn btn-primary">
-                  Save Configuration
+                  Save Phone Number
                 </button>
                 <button id="btn-test-notify" type="button" class="btn btn-outline">
-                  Send Test Alert to Phone
+                  Send Test SMS to Phone
                 </button>
               </div>
               <div id="config-feedback" class="feedback-banner" role="status"></div>
@@ -265,7 +253,7 @@
                 <div class="field-group" style="justify-content: flex-end;">
                   <label class="checkbox-row" for="checkbox-scan-notify" style="margin-bottom: 0.4rem;">
                     <input id="checkbox-scan-notify" type="checkbox" checked />
-                    <span>Message my phone for newly detected events</span>
+                    <span>Text my Google Fi phone for newly detected events</span>
                   </label>
                 </div>
               </div>
@@ -302,7 +290,7 @@
                 Detected Chat Events (<span id="events-count-badge">0</span>)
               </h2>
               <p class="panel-description">
-                Events extracted from monitored WhatsApp chats and their phone notification status
+                Events extracted from monitored WhatsApp chats and their SMS notification status
               </p>
             </div>
             <button id="btn-clear-events" type="button" class="btn btn-secondary btn-sm">
@@ -326,7 +314,7 @@
         <article class="panel-card">
           <div class="panel-header">
             <div>
-              <h2 class="panel-title">Recent Scanner &amp; Notification Activity</h2>
+              <h2 class="panel-title">Recent Scanner &amp; SMS Activity</h2>
             </div>
           </div>
           <div class="panel-body">

@@ -5,7 +5,8 @@ const { detectEventWithRules, analyzeMessageForEvent } = require('../src/eventDe
 const {
   formatEventNotificationMessage,
   formatSmsMessage,
-  notifyUserOfEvent
+  notifyUserOfEvent,
+  getGoogleFiGatewayAddress
 } = require('../src/notifier');
 
 test('parseWhatsAppExport parses both iOS and Android WhatsApp chat formats', () => {
@@ -54,13 +55,17 @@ test('analyzeMessageForEvent returns full event metadata for chat messages', asy
   assert.equal(result.category, 'social');
 });
 
-test('notifyUserOfEvent sends formatted alert to personal phone number via WhatsApp manager', async () => {
-  const sentMessages = [];
-  const mockWhatsAppManager = {
-    async sendDirectMessage(phoneDigits, body) {
-      sentMessages.push({ phoneDigits, body });
-      return { jid: `${phoneDigits}@s.whatsapp.net`, messageId: 'mock_msg_1' };
-    }
+test('notifyUserOfEvent sends SMS via Textbelt to a 10-digit Google Fi number automatically', async () => {
+  const textbeltCalls = [];
+  const mockFetch = async (url, opts) => {
+    textbeltCalls.push({ url, body: JSON.parse(opts.body) });
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return { success: true, textId: 'tb_12345', quotaRemaining: 249 };
+      }
+    };
   };
 
   const event = {
@@ -72,19 +77,25 @@ test('notifyUserOfEvent sends formatted alert to personal phone number via Whats
     summary: 'Hosting the Phillips Family Sunday BBQ at Oak Creek Park this Sunday at 1:00 PM.'
   };
 
+  // User enters a plain 10-digit Google Fi number (no +1 needed)
   const config = {
-    notifyPhoneNumber: '+1 (555) 234-5678',
-    notificationChannels: 'whatsapp'
+    notifyPhoneNumber: '555-234-5678',
+    notificationChannels: 'sms',
+    textbeltApiKey: 'test_textbelt_key'
   };
 
-  const res = await notifyUserOfEvent(event, config, mockWhatsAppManager);
+  const res = await notifyUserOfEvent(event, config, null, { fetchImpl: mockFetch });
   assert.equal(res.success, true);
   assert.equal(res.recipient, '+15552345678');
-  assert.equal(sentMessages.length, 1);
-  assert.equal(sentMessages[0].phoneDigits, '15552345678');
-  assert.match(sentMessages[0].body, /Phillips Family Sunday BBQ/);
-  assert.match(sentMessages[0].body, /Oak Creek Park/);
+  assert.equal(res.carrier, 'Google Fi');
+  assert.equal(res.googleFiGateway, '5552345678@msg.fi.google.com');
+  assert.equal(textbeltCalls.length, 1);
+  assert.equal(textbeltCalls[0].url, 'https://textbelt.com/text');
+  assert.equal(textbeltCalls[0].body.phone, '+15552345678');
+  assert.equal(textbeltCalls[0].body.key, 'test_textbelt_key');
+  assert.match(textbeltCalls[0].body.message, /\[WhatsApp Event\] Phillips Family Sunday BBQ/);
 
+  assert.equal(getGoogleFiGatewayAddress('(555) 234-5678'), '5552345678@msg.fi.google.com');
   const smsText = formatSmsMessage(event);
   assert.match(smsText, /\[WhatsApp Event\] Phillips Family Sunday BBQ/);
   const waText = formatEventNotificationMessage(event);
