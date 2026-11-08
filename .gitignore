@@ -1,0 +1,7 @@
+node_modules/
+.env
+.wa-session/
+data/config.json
+data/events.json
+*.log
+.DS_Store

@@ -1,0 +1,39 @@
+{
+  "name": "phillips_whatsapp_notifier",
+  "version": "1.0.0",
+  "description": "Scans WhatsApp chats for talked-about events and messages the user's personal phone number via WhatsApp DM or Twilio SMS.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davidscottballard1-png/Phillips_Whatsapp_Notifier.git"
+  },
+  "keywords": [
+    "whatsapp",
+    "event-detector",
+    "notifier",
+    "baileys",
+    "twilio",
+    "gemini",
+    "openai"
+  ],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/davidscottballard1-png/Phillips_Whatsapp_Notifier/issues"
+  },
+  "homepage": "https://github.com/davidscottballard1-png/Phillips_Whatsapp_Notifier#readme",
+  "dependencies": {
+    "@whiskeysockets/baileys": "^7.0.0-rc14",
+    "chrono-node": "^2.9.0",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "pino": "^10.3.1",
+    "qrcode": "^1.5.4"
+  }
+}
