@@ -198,6 +198,7 @@ function clearEvents() {
 }
 
 module.exports = {
+  DATA_DIR,
   loadConfig,
   saveConfig,
   getPublicConfig,

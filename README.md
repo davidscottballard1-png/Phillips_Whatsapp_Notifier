@@ -55,9 +55,31 @@ Open `http://localhost:3000` in your browser:
 - [`src/eventDetector.js`](./src/eventDetector.js) — Hybrid AI (Gemini / OpenAI) + Chrono NLP rule-based event extraction engine
 - [`src/chatParser.js`](./src/chatParser.js) — Parser for iOS and Android WhatsApp `.txt` chat exports
 - [`src/notifier.js`](./src/notifier.js) — Google Fi SMS notification dispatcher via Textbelt (`https://textbelt.com/text`) + optional WhatsApp DM
-- [`src/store.js`](./src/store.js) — Persistent configuration and deduplicated event store
-- [`public/`](./public) — Web dashboard (`index.html`, `styles.css`, `app.js`)
+- [`src/store.js`](./src/store.js) — Persistent configuration and deduplicated event store (`/app/data`)
+- [`public/`](./public) — Web dashboard (`index.html`, `styles.css`, `app.js`, `manifest.json`)
 - [`test/notifier.test.js`](./test/notifier.test.js) — Automated unit & integration tests
+
+---
+
+## 24/7 Cloud Deployment (Railway, Render, or Fly.io)
+
+All persistent state — saved phone number/settings (`config.json`), detected events (`events.json`), and the linked WhatsApp session (`wa-session/`) — is stored inside a single directory (`DATA_DIR`, which defaults to `/app/data` in production). When the container restarts, the server automatically detects the saved WhatsApp session and reconnects in the background.
+
+### Option A: Railway (Easiest)
+1. Go to [railway.app](https://railway.app) → **New Project** → **Deploy from GitHub repo** → select `davidscottballard1-png/Phillips_Whatsapp_Notifier`.
+2. Right-click your deployed service → **Attach Volume** → set Mount Path to **`/app/data`**.
+3. Open **Settings → Networking → Generate Domain** to get your `https://...up.railway.app` URL.
+
+### Option B: Render (Blueprint Auto-Setup)
+1. Go to [render.com](https://render.com) → **New +** → **Blueprint** → select `davidscottballard1-png/Phillips_Whatsapp_Notifier`.
+2. Render reads [`render.yaml`](./render.yaml) and automatically creates the Docker service and attaches the `/app/data` persistent disk.
+
+### Option C: Fly.io
+```bash
+fly launch --copy-config --no-deploy
+fly volumes create phillips_whatsapp_data --size 1 --region iad
+fly deploy
+```
 
 ---
 

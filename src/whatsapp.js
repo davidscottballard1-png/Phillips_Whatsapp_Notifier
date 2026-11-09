@@ -2,8 +2,11 @@ const path = require('path');
 const fs = require('fs');
 const QRCode = require('qrcode');
 const pino = require('pino');
+const { DATA_DIR } = require('./store');
 
-const SESSION_DIR = path.join(__dirname, '..', '.wa-session');
+const SESSION_DIR = process.env.WA_SESSION_DIR
+  ? path.resolve(process.env.WA_SESSION_DIR)
+  : path.join(DATA_DIR, 'wa-session');
 
 class WhatsAppManager {
   constructor({ onIncomingMessage } = {}) {
@@ -20,12 +23,21 @@ class WhatsAppManager {
     this.shouldReconnect = false;
   }
 
+  hasSavedSession() {
+    try {
+      return fs.existsSync(path.join(SESSION_DIR, 'creds.json'));
+    } catch {
+      return false;
+    }
+  }
+
   getStatus() {
     return {
       status: this.status,
       qrDataUrl: this.qrDataUrl,
       connectedUser: this.connectedUser,
       lastError: this.lastError,
+      hasSavedSession: this.hasSavedSession(),
       knownChats: Array.from(this.knownChats.values()).sort((a, b) =>
         (a.name || '').localeCompare(b.name || '')
       )
@@ -312,4 +324,4 @@ class WhatsAppManager {
   }
 }
 
-module.exports = { WhatsAppManager };
+module.exports = { WhatsAppManager, SESSION_DIR };

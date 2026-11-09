@@ -310,10 +310,20 @@ app.get('/api/sample-chat', (req, res) => {
 });
 
 const PORT = Number(process.env.PORT) || 3000;
+const HOST = process.env.HOST || '0.0.0.0';
 
 if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`Phillips WhatsApp Notifier running at http://localhost:${PORT}`);
+  app.listen(PORT, HOST, () => {
+    console.log(`Phillips WhatsApp Notifier running at http://${HOST}:${PORT}`);
+    if (whatsappManager.hasSavedSession() || process.env.AUTO_CONNECT_WHATSAPP === 'true') {
+      logActivity(
+        'whatsapp',
+        'Found saved WhatsApp session on persistent storage — automatically reconnecting for 24/7 monitoring...'
+      );
+      whatsappManager.connect().catch((err) => {
+        console.error('Auto-reconnect WhatsApp failed:', err.message);
+      });
+    }
   });
 }
 

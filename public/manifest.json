@@ -1,0 +1,9 @@
+{
+  "name": "Phillips WhatsApp Notifier",
+  "short_name": "WA Notifier",
+  "description": "Scans WhatsApp chats for upcoming events and sends Google Fi SMS alerts via Textbelt.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b141a",
+  "theme_color": "#00a884"
+}

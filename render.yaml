@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: phillips-whatsapp-notifier
+    runtime: docker
+    plan: starter
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3000"
+      - key: DATA_DIR
+        value: /app/data
+      - key: TEXTBELT_API_KEY
+        value: textbelt
+    disk:
+      name: whatsapp-notifier-data
+      mountPath: /app/data
+      sizeGB: 1

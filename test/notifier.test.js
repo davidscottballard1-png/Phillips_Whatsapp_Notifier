@@ -101,3 +101,14 @@ test('notifyUserOfEvent sends SMS via Textbelt to a 10-digit Google Fi number au
   const waText = formatEventNotificationMessage(event);
   assert.match(waText, /Phillips WhatsApp Event Alert/);
 });
+
+test('DATA_DIR and WhatsApp SESSION_DIR share the same persistent storage root (/app/data)', () => {
+  const path = require('path');
+  const { DATA_DIR } = require('../src/store');
+  const { SESSION_DIR, WhatsAppManager } = require('../src/whatsapp');
+
+  assert.equal(SESSION_DIR, path.join(DATA_DIR, 'wa-session'));
+  const manager = new WhatsAppManager();
+  assert.equal(typeof manager.hasSavedSession(), 'boolean');
+});
+
