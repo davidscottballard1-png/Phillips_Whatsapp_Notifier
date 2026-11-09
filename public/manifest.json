@@ -1,0 +1,19 @@
+{
+  "name": "Phillips WhatsApp Notifier (Pixel 10 Edition)",
+  "short_name": "Phillips Notifier",
+  "description": "Pixel 10 optimized WhatsApp chat event scanner and automatic Google Fi SMS notifier.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#070d0a",
+  "theme_color": "#19724d",
+  "categories": ["productivity", "utilities", "communication"],
+  "icons": [
+    {
+      "src": "/icon-pixel10.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

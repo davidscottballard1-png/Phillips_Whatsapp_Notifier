@@ -32,7 +32,11 @@ function getDefaultConfig() {
     openaiApiKey: process.env.OPENAI_API_KEY || '',
     openaiModel: process.env.OPENAI_MODEL || 'gpt-4o-mini',
     autoNotify: true,
-    minConfidence: 0.55
+    minConfidence: 0.55,
+    deviceProfile: process.env.DEVICE_PROFILE || 'pixel_10',
+    pixelOledDark: process.env.PIXEL_OLED_DARK === 'true',
+    pixelNotificationListener: true,
+    pixelAutoCalendarPrompt: true
   };
 }
 

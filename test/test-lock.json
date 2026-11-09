@@ -1,0 +1,45 @@
+{
+  "locked": true,
+  "targetDevice": "Google Pixel 10",
+  "totalTestFiles": 2,
+  "totalTests": 21,
+  "files": {
+    "notifier.test.js": {
+      "sha256": "13854fd55a838cbc8c80593889f59217ff5f4eaedaa6f1436306166ce952989a",
+      "bytes": 12682,
+      "lines": 341,
+      "testCount": 9,
+      "tests": [
+        "parseWhatsAppExport parses both iOS and Android WhatsApp chat formats",
+        "parseWhatsAppExport filters system notices, concatenates multiline messages, and parses simple speaker lines",
+        "detectEventWithRules extracts event details and ignores casual non-event messages",
+        "analyzeMessageForEvent returns full event metadata for chat messages",
+        "notifyUserOfEvent sends SMS via Textbelt to a 10-digit Google Fi number automatically",
+        "notifyUserOfEvent supports dual-channel (SMS + WhatsApp DM) delivery and validates missing phone numbers",
+        "Pixel 10 store persists deviceProfile settings and deduplicates identical events by fingerprint",
+        "Pixel 10 APK metadata and downloadable APK endpoints serve valid signed Android package",
+        "Locked test suite manifest (test/test-lock.json) matches cryptographic SHA-256 hashes of all test files"
+      ]
+    },
+    "pixel10.test.js": {
+      "sha256": "f14578a6568a6ddaec0921c1a2cdb8b4b7bba52f85fb1dbd822ac996b0c1c15f",
+      "bytes": 16876,
+      "lines": 438,
+      "testCount": 12,
+      "tests": [
+        "WhatsAppManager.requestPairingCode generates valid 8-character formatted pairing code for 10-digit Pixel 10 Google Fi numbers",
+        "WhatsAppManager.requestPairingCode rejects invalid short phone numbers and falls back cleanly when socket handshake is pending",
+        "WhatsAppManager.ingestExternalNotification registers Pixel 10 WhatsApp group and maintains rolling 8-message context window",
+        "WhatsAppManager.matchesWatchedChat and extractMessageText handle all WhatsApp message types and filters",
+        "POST /api/whatsapp/pair-code generates same-phone pairing code via REST API and validates missing phone input",
+        "POST /api/pixel10/notification validates payload and extracts talked-about events from on-device listener",
+        "GET /api/events/:id/ics exports RFC 5545 iCalendar event with Google Pixel 10 PRODID and returns 404 for unknown ID",
+        "POST /api/config and GET /api/status persist Pixel 10 settings and preserve masked API keys",
+        "Express CORS middleware allows Pixel 10 WebView file:// origin and X-Device-Model header on OPTIONS preflight",
+        "Compiled Phillips-WhatsApp-Notifier-Pixel10.apk contains valid AndroidManifest.xml, classes.dex, bundled assets, and APK Signature Block",
+        "Native Android Pixel 10 Java sources implement 120Hz Smooth Display, Share Sheet ACTION_SEND receiver, SmsManager, Calendar intent, and WhatsAppNotificationService",
+        "Frontend Pixel 10 UI assets include Actua OLED theme, 412x915 frame, bottom nav, and standalone engine"
+      ]
+    }
+  }
+}

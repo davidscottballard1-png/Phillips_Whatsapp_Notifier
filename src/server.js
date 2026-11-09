@@ -1,6 +1,9 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
+const crypto = require('crypto');
+const QRCode = require('qrcode');
 const {
   loadConfig,
   saveConfig,
@@ -18,6 +21,123 @@ const { WhatsAppManager } = require('./whatsapp');
 
 const app = express();
 app.use(express.json({ limit: '5mb' }));
+
+// Allow Pixel 10 APK WebView (file:// or remote origin) to talk to the API seamlessly
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Device-Model');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+  next();
+});
+
+const APK_FILENAME = 'Phillips-WhatsApp-Notifier-Pixel10.apk';
+const APK_CANDIDATE_PATHS = [
+  path.join(__dirname, '..', APK_FILENAME),
+  path.join(__dirname, '..', 'public', 'phillips-whatsapp-notifier-pixel10.apk'),
+  path.join(__dirname, '..', 'dist', APK_FILENAME)
+];
+
+function resolveApkPath() {
+  for (const candidate of APK_CANDIDATE_PATHS) {
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+  return null;
+}
+
+function getApkMetadata() {
+  const apkPath = resolveApkPath();
+  let sizeBytes = 0;
+  let sha256 = '';
+  let updatedAt = new Date().toISOString();
+
+  if (apkPath) {
+    try {
+      const stat = fs.statSync(apkPath);
+      sizeBytes = stat.size;
+      updatedAt = stat.mtime.toISOString();
+      const buf = fs.readFileSync(apkPath);
+      sha256 = crypto.createHash('sha256').update(buf).digest('hex');
+    } catch {
+      // Ignore read errors
+    }
+  }
+
+  const sizeKb = sizeBytes ? `${(sizeBytes / 1024).toFixed(1)} KB` : 'Pending build';
+
+  return {
+    available: Boolean(apkPath && sizeBytes > 0),
+    filename: APK_FILENAME,
+    packageName: 'com.phillips.whatsappnotifier.pixel10',
+    versionName: '2.0.0-pixel10',
+    versionCode: 100200,
+    targetDevice: 'Google Pixel 10',
+    socOptimization: 'Google Tensor G5 (64-bit ARMv9)',
+    displayOptimization: '6.3" Actua OLED (1080×2424 • 20:9 • 120Hz Smooth Display)',
+    targetAndroid: 'Android 16 (API 35 / Baklava 36)',
+    minAndroid: 'Android 8.0+ (API 26+)',
+    carrierOptimization: 'Google Fi Wireless (Textbelt SMS + Native SIM SmsManager + @msg.fi.google.com)',
+    signatureSchemes: ['v1 (JAR)', 'v2 (APK Signature Scheme v2)', 'v3 (APK Signature Scheme v3)'],
+    sizeBytes,
+    sizeFormatted: sizeKb,
+    sha256,
+    updatedAt,
+    downloadUrl: '/api/apk/download',
+    directPath: '/phillips-whatsapp-notifier-pixel10.apk',
+    features: [
+      'Native Pixel 10 WhatsApp NotificationListenerService (scans incoming WhatsApp chats on-device)',
+      'Same-phone 8-character WhatsApp Pairing Code (no second phone needed to scan QR)',
+      'Android Share Sheet integration (Export WhatsApp chat directly to Phillips Notifier)',
+      'Dual SMS engine: Textbelt Cloud SMS + Native Pixel 10 Google Fi SIM (SmsManager)',
+      'Offline-capable standalone on-device Chrono NLP + Gemini 2.5 Flash AI detector',
+      '120Hz Smooth Display & Actua OLED True-Black battery saver theme'
+    ]
+  };
+}
+
+function sendApkFile(req, res) {
+  const apkPath = resolveApkPath();
+  if (!apkPath) {
+    return res.status(404).json({
+      error: 'APK file not found. Run `npm run build:apk` to build Phillips-WhatsApp-Notifier-Pixel10.apk.'
+    });
+  }
+  logActivity('apk_download', `Downloaded ${APK_FILENAME} for Google Pixel 10`);
+  res.setHeader('Content-Type', 'application/vnd.android.package-archive');
+  res.setHeader('Content-Disposition', `attachment; filename="${APK_FILENAME}"`);
+  res.setHeader('X-Android-Package', 'com.phillips.whatsappnotifier.pixel10');
+  res.setHeader('X-Target-Device', 'Google Pixel 10');
+  return res.sendFile(apkPath);
+}
+
+app.get('/api/apk/download', sendApkFile);
+app.get('/phillips-whatsapp-notifier-pixel10.apk', sendApkFile);
+app.get('/Phillips-WhatsApp-Notifier-Pixel10.apk', sendApkFile);
+
+app.get('/api/apk/info', async (req, res) => {
+  const meta = getApkMetadata();
+  const hostUrl = `${req.protocol}://${req.get('host') || `localhost:${PORT}`}${meta.downloadUrl}`;
+  let qrDataUrl = null;
+  try {
+    qrDataUrl = await QRCode.toDataURL(hostUrl, {
+      width: 220,
+      margin: 2,
+      color: { dark: '#0d261c', light: '#ffffff' }
+    });
+  } catch {
+    // Ignore QR generation error
+  }
+  res.json({
+    ...meta,
+    fullDownloadUrl: hostUrl,
+    qrDataUrl
+  });
+});
+
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 const activityLog = [];
@@ -95,7 +215,8 @@ app.get('/api/status', (req, res) => {
     whatsapp: whatsappManager.getStatus(),
     config: getPublicConfig(),
     eventsCount: loadEvents().length,
-    recentActivity: activityLog.slice(0, 30)
+    recentActivity: activityLog.slice(0, 30),
+    apk: getApkMetadata()
   });
 });
 
@@ -113,12 +234,79 @@ app.post('/api/whatsapp/connect', async (req, res) => {
   }
 });
 
+app.post('/api/whatsapp/pair-code', async (req, res) => {
+  try {
+    const config = loadConfig();
+    const phoneInput = (req.body?.phoneNumber || config.notifyPhoneNumber || '').trim();
+    if (!phoneInput) {
+      return res.status(400).json({
+        error: 'Enter your 10-digit Pixel 10 / Google Fi phone number to request an 8-character WhatsApp pairing code.'
+      });
+    }
+    const result = await whatsappManager.requestPairingCode(phoneInput);
+    logActivity(
+      'whatsapp',
+      `Generated Pixel 10 same-phone WhatsApp pairing code (${result.pairingCode}) for ${result.pairingPhone}`
+    );
+    res.json({
+      ...result,
+      whatsapp: whatsappManager.getStatus()
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 app.post('/api/whatsapp/disconnect', async (req, res) => {
   try {
     const logout = Boolean(req.body?.logout);
     logActivity('whatsapp', logout ? 'Logged out of WhatsApp session.' : 'Disconnected WhatsApp.');
     const status = await whatsappManager.disconnect(logout);
     res.json(status);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/pixel10/notification', async (req, res) => {
+  try {
+    const {
+      chatName = 'Phillips Family Group (Pixel 10)',
+      sender = 'Uncle Dave',
+      text = '',
+      timestamp = new Date().toISOString(),
+      deviceModel = 'Google Pixel 10'
+    } = req.body || {};
+
+    if (!text || !String(text).trim()) {
+      return res.status(400).json({ error: 'Notification message text is required.' });
+    }
+
+    logActivity(
+      'pixel10_listener',
+      `[${deviceModel}] Intercepted WhatsApp notification in "${chatName}" from ${sender}`
+    );
+
+    const beforeIds = new Set(loadEvents().map((e) => e.id));
+    await whatsappManager.ingestExternalNotification({
+      chatName,
+      sender,
+      text,
+      timestamp
+    });
+
+    const allEvents = loadEvents();
+    const newOrUpdated = allEvents.filter((e) => !beforeIds.has(e.id));
+
+    res.json({
+      success: true,
+      deviceModel,
+      chatName,
+      sender,
+      detectedCount: newOrUpdated.length,
+      detectedEvents: newOrUpdated,
+      allEvents
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -149,7 +337,14 @@ app.post('/api/config', (req, res) => {
     minConfidence:
       typeof body.minConfidence === 'number'
         ? Math.max(0.3, Math.min(0.95, body.minConfidence))
-        : current.minConfidence
+        : current.minConfidence,
+    deviceProfile: body.deviceProfile || current.deviceProfile || 'pixel_10',
+    pixelOledDark:
+      typeof body.pixelOledDark === 'boolean' ? body.pixelOledDark : current.pixelOledDark,
+    pixelNotificationListener:
+      typeof body.pixelNotificationListener === 'boolean'
+        ? body.pixelNotificationListener
+        : current.pixelNotificationListener
   };
 
   // Only update secret fields if non-masked values were submitted
@@ -164,12 +359,57 @@ app.post('/api/config', (req, res) => {
   }
 
   saveConfig(updates);
-  logActivity('config', 'Updated Google Fi SMS notification & scanner settings.');
+  logActivity('config', 'Updated Pixel 10 & Google Fi SMS notification settings.');
   res.json(getPublicConfig());
 });
 
 app.get('/api/events', (req, res) => {
   res.json({ events: loadEvents() });
+});
+
+app.get('/api/events/:id/ics', (req, res) => {
+  const events = loadEvents();
+  const ev = events.find((e) => e.id === req.params.id);
+  if (!ev) {
+    return res.status(404).json({ error: 'Event not found.' });
+  }
+
+  const start = ev.startDate ? new Date(ev.startDate) : new Date(Date.now() + 86400000);
+  const end = ev.endDate
+    ? new Date(ev.endDate)
+    : new Date(start.getTime() + 2 * 60 * 60 * 1000);
+
+  const fmtIcsDate = (d) =>
+    d
+      .toISOString()
+      .replace(/[-:]/g, '')
+      .replace(/\.\d{3}/, '');
+
+  const icsLines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Phillips WhatsApp Notifier//Google Pixel 10//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'BEGIN:VEVENT',
+    `UID:${ev.id}@phillips-whatsapp-notifier.pixel10`,
+    `DTSTAMP:${fmtIcsDate(new Date())}`,
+    `DTSTART:${fmtIcsDate(start)}`,
+    `DTEND:${fmtIcsDate(end)}`,
+    `SUMMARY:${(ev.title || 'WhatsApp Event').replace(/[\r\n]+/g, ' ')}`,
+    `LOCATION:${(ev.location || '').replace(/[\r\n]+/g, ' ')}`,
+    `DESCRIPTION:Detected in WhatsApp chat "${ev.chatName}" from ${ev.sender}: ${(
+      ev.summary ||
+      ev.sourceMessage ||
+      ''
+    ).replace(/[\r\n]+/g, ' ')}`,
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ];
+
+  res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename="${ev.id}.ics"`);
+  res.send(icsLines.join('\r\n'));
 });
 
 app.post('/api/events/:id/notify', async (req, res) => {
@@ -221,7 +461,7 @@ app.post('/api/notify/test', async (req, res) => {
     : config;
 
   const sampleEvent = {
-    title: 'Test Alert — Phillips WhatsApp Notifier',
+    title: 'Test Alert — Phillips WhatsApp Notifier (Pixel 10)',
     dateText: new Intl.DateTimeFormat('en-US', {
       weekday: 'short',
       month: 'short',
@@ -229,11 +469,11 @@ app.post('/api/notify/test', async (req, res) => {
       hour: 'numeric',
       minute: '2-digit'
     }).format(new Date()),
-    location: 'Your Personal Phone',
+    location: 'Google Pixel 10 (Google Fi)',
     chatName: 'Phillips Notifier System Check',
     sender: 'Phillips Notifier',
     summary:
-      'Your WhatsApp event notification pipeline is active. Whenever an event is discussed in a monitored chat, you will be notified here.'
+      'Your Pixel 10 WhatsApp event notification pipeline is active. Whenever an event is discussed in a monitored chat, you will be notified here.'
   };
 
   const result = await notifyUserOfEvent(sampleEvent, effectiveConfig, whatsappManager);
@@ -313,8 +553,9 @@ const PORT = Number(process.env.PORT) || 3000;
 
 if (require.main === module) {
   app.listen(PORT, () => {
-    console.log(`Phillips WhatsApp Notifier running at http://localhost:${PORT}`);
+    console.log(`Phillips WhatsApp Notifier (Pixel 10 Edition) running at http://localhost:${PORT}`);
   });
 }
 
-module.exports = { app, whatsappManager };
+module.exports = { app, whatsappManager, getApkMetadata };
+

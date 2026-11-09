@@ -6,7 +6,11 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "test": "node --test test/*.test.js"
+    "build:apk": "bash scripts/build-apk.sh",
+    "test": "node scripts/lock-tests.js --verify && node --test test/*.test.js",
+    "test:lock": "node scripts/lock-tests.js --lock",
+    "test:unlock": "node scripts/lock-tests.js --unlock",
+    "test:verify-lock": "node scripts/lock-tests.js --verify"
   },
   "repository": {
     "type": "git",
@@ -16,6 +20,8 @@
     "whatsapp",
     "event-detector",
     "notifier",
+    "pixel-10",
+    "android-apk",
     "baileys",
     "textbelt",
     "google-fi",

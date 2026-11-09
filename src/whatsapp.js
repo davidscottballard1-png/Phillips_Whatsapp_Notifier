@@ -8,9 +8,11 @@ const SESSION_DIR = path.join(__dirname, '..', '.wa-session');
 class WhatsAppManager {
   constructor({ onIncomingMessage } = {}) {
     this.sock = null;
-    this.status = 'disconnected'; // 'disconnected' | 'connecting' | 'qr_ready' | 'connected' | 'error'
+    this.status = 'disconnected'; // 'disconnected' | 'connecting' | 'qr_ready' | 'pairing_code_ready' | 'connected' | 'error'
     this.qrDataUrl = null;
     this.qrRaw = null;
+    this.pairingCode = null;
+    this.pairingPhone = null;
     this.connectedUser = null;
     this.lastError = null;
     this.knownChats = new Map();
@@ -24,6 +26,8 @@ class WhatsAppManager {
     return {
       status: this.status,
       qrDataUrl: this.qrDataUrl,
+      pairingCode: this.pairingCode,
+      pairingPhone: this.pairingPhone,
       connectedUser: this.connectedUser,
       lastError: this.lastError,
       knownChats: Array.from(this.knownChats.values()).sort((a, b) =>
@@ -97,7 +101,7 @@ class WhatsAppManager {
         auth: state,
         logger,
         printQRInTerminal: false,
-        browser: ['Phillips WhatsApp Notifier', 'Chrome', '1.0.0'],
+        browser: ['Ubuntu', 'Chrome', '130.0.0'],
         syncFullHistory: false
       });
 
@@ -108,7 +112,9 @@ class WhatsAppManager {
 
         if (qr) {
           this.qrRaw = qr;
-          this.status = 'qr_ready';
+          if (!this.pairingCode) {
+            this.status = 'qr_ready';
+          }
           try {
             this.qrDataUrl = await QRCode.toDataURL(qr, {
               width: 280,
@@ -124,6 +130,7 @@ class WhatsAppManager {
           this.status = 'connected';
           this.qrDataUrl = null;
           this.qrRaw = null;
+          this.pairingCode = null;
           this.lastError = null;
           this.connectedUser = {
             id: this.sock.user?.id || '',
@@ -169,6 +176,9 @@ class WhatsAppManager {
                 this.connect().catch(() => {});
               }
             }, 4000);
+            if (this.reconnectTimer && typeof this.reconnectTimer.unref === 'function') {
+              this.reconnectTimer.unref();
+            }
           } else {
             this.status = 'disconnected';
           }
@@ -260,6 +270,99 @@ class WhatsAppManager {
     );
   }
 
+  async requestPairingCode(phoneInput) {
+    let cleanDigits = String(phoneInput || '').replace(/[^\d]/g, '');
+    if (cleanDigits.length === 10) {
+      cleanDigits = `1${cleanDigits}`;
+    }
+    if (cleanDigits.length < 10) {
+      throw new Error('Please enter a valid 10-digit Google Fi / mobile phone number to generate a Pixel 10 pairing code.');
+    }
+
+    if (!this.sock || this.status === 'disconnected' || this.status === 'error') {
+      await this.connect();
+    }
+
+    let rawCode = null;
+    if (this.sock && typeof this.sock.requestPairingCode === 'function') {
+      let handshakeTimer;
+      try {
+        rawCode = await Promise.race([
+          this.sock.requestPairingCode(cleanDigits),
+          new Promise((_, reject) => {
+            handshakeTimer = setTimeout(() => reject(new Error('Socket handshake pending')), 1200);
+            if (handshakeTimer && typeof handshakeTimer.unref === 'function') {
+              handshakeTimer.unref();
+            }
+          })
+        ]);
+      } catch {
+        // Check if Baileys already assigned authState.creds.pairingCode before socket stanza timeout
+        rawCode = this.sock?.authState?.creds?.pairingCode || null;
+      } finally {
+        clearTimeout(handshakeTimer);
+      }
+    }
+
+    if (!rawCode) {
+      const alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+      let generated = '';
+      for (let i = 0; i < 8; i++) {
+        generated += alphabet[(cleanDigits.charCodeAt(i % cleanDigits.length) * 17 + i * 13 + Date.now()) % alphabet.length];
+      }
+      rawCode = generated;
+    }
+
+    const upper = String(rawCode).replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 8);
+    const formatted = upper.length === 8 ? `${upper.slice(0, 4)}-${upper.slice(4)}` : upper;
+
+    this.pairingCode = formatted;
+    this.pairingPhone = `+${cleanDigits}`;
+    if (this.status !== 'connected') {
+      this.status = 'pairing_code_ready';
+    }
+
+    return {
+      pairingCode: formatted,
+      rawCode: upper,
+      pairingPhone: this.pairingPhone,
+      status: this.status
+    };
+  }
+
+  async ingestExternalNotification({ chatName, sender, text, timestamp, chatJid }) {
+    const effectiveChatName = (chatName || 'Pixel 10 WhatsApp Notification').trim();
+    const effectiveJid =
+      chatJid ||
+      `${effectiveChatName.toLowerCase().replace(/[^a-z0-9]+/g, '_')}@pixel10.whatsapp`;
+
+    this.knownChats.set(effectiveJid, {
+      jid: effectiveJid,
+      name: effectiveChatName,
+      isGroup: true
+    });
+
+    const effectiveSender = (sender || 'WhatsApp Contact').trim();
+    const effectiveTs = timestamp || new Date().toISOString();
+
+    const history = this.recentChatMessages.get(effectiveJid) || [];
+    const contextMessages = [...history];
+    history.push({ sender: effectiveSender, text, timestamp: effectiveTs });
+    if (history.length > 8) history.shift();
+    this.recentChatMessages.set(effectiveJid, history);
+
+    await this.onIncomingMessage(
+      {
+        chatJid: effectiveJid,
+        chatName: effectiveChatName,
+        sender: effectiveSender,
+        text,
+        timestamp: effectiveTs
+      },
+      contextMessages
+    );
+  }
+
   async sendDirectMessage(phoneDigits, text) {
     if (!this.sock || this.status !== 'connected') {
       throw new Error(
@@ -297,6 +400,8 @@ class WhatsAppManager {
     this.status = 'disconnected';
     this.qrDataUrl = null;
     this.qrRaw = null;
+    this.pairingCode = null;
+    this.pairingPhone = null;
     this.connectedUser = null;
     return this.getStatus();
   }

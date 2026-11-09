@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Phillips WhatsApp Notifier</string>
+    <string name="share_action_label">Scan WhatsApp Chat for Events (Pixel 10)</string>
+    <string name="listener_service_name">Phillips Pixel 10 WhatsApp Event Scanner</string>
+</resources>

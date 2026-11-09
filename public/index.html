@@ -1,34 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-device="pixel-10">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Phillips WhatsApp Notifier — Chat Event Scanner & Google Fi SMS Alerts</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0d261c" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Phillips WhatsApp Notifier — Google Pixel 10 Edition &amp; APK</title>
     <meta
       name="description"
-      content="Monitor WhatsApp group chats or scan exported chat logs to automatically detect upcoming events and text your Google Fi phone number via Textbelt SMS."
+      content="Optimized for Google Pixel 10 (Android 16, Tensor G5, 120Hz Actua OLED, Google Fi). Monitor WhatsApp group chats, detect upcoming events, and receive automatic Google Fi SMS alerts."
     />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="icon" type="image/svg+xml" href="icon-pixel10.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <header class="top-header">
       <div class="header-inner">
         <div class="brand-group">
           <div class="brand-mark" aria-hidden="true">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.1"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"
+              />
             </svg>
           </div>
           <div>
-            <h1 class="brand-title">Phillips WhatsApp Notifier</h1>
+            <div class="brand-title-row">
+              <h1 class="brand-title">Phillips WhatsApp Notifier</h1>
+              <span class="pixel-edition-badge" title="Optimized for Google Pixel 10 (Tensor G5 • 6.3&quot; 120Hz Actua OLED • Android 16)">
+                Pixel 10 Edition
+              </span>
+            </div>
             <p class="brand-subtitle">
-              Scans WhatsApp chats for talked-about events &amp; texts your Google Fi phone number
+              Scans WhatsApp chats for talked-about events &amp; texts your Google Fi phone on Pixel 10
             </p>
           </div>
         </div>
@@ -41,293 +66,502 @@
           <div id="phone-target-pill" class="status-chip">
             <span id="phone-target-label">Google Fi SMS: Not Set</span>
           </div>
+          <button
+            id="btn-toggle-pixel10-view"
+            type="button"
+            class="btn btn-secondary btn-sm"
+            title="Toggle Google Pixel 10 (412×915 20:9 Actua OLED) hardware frame preview"
+          >
+            Pixel 10 Frame
+          </button>
+          <button
+            id="btn-toggle-oled"
+            type="button"
+            class="btn btn-secondary btn-sm"
+            title="Toggle Pixel 10 Actua OLED True-Black battery saver theme"
+          >
+            OLED Dark
+          </button>
+          <a
+            id="btn-header-download-apk"
+            href="/api/apk/download"
+            download="Phillips-WhatsApp-Notifier-Pixel10.apk"
+            class="btn btn-primary btn-sm apk-header-cta"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            <span>Download Pixel 10 APK</span>
+          </a>
         </div>
       </div>
     </header>
 
-    <main class="workspace-container">
-      <!-- Left Column: WhatsApp Link + Notification Configuration -->
-      <section class="column-stack" aria-label="Connection and Notification Settings">
-        <!-- Card 1: Live WhatsApp Web Link -->
-        <article class="panel-card">
-          <div class="panel-header">
-            <div>
-              <h2 class="panel-title">1. WhatsApp Chat Access</h2>
-              <p class="panel-description">
-                Link WhatsApp via QR code to monitor live chats automatically
-              </p>
-            </div>
-          </div>
-          <div class="panel-body">
-            <div id="qr-container" class="qr-stage">
-              <p id="qr-instructions" class="qr-caption">
-                Click <strong>Connect WhatsApp</strong> to generate a QR code, then scan it from
-                <strong>WhatsApp &rarr; Linked Devices</strong> on your phone.
-              </p>
-              <img id="qr-image" src="" alt="WhatsApp Web Pairing QR Code" style="display: none;" />
-            </div>
+    <!-- Optional Pixel 10 Hardware Frame Wrapper (active when Pixel 10 Frame mode is toggled on desktop) -->
+    <div id="pixel10-device-shell" class="pixel10-device-shell">
+      <!-- Simulated Android 16 Status Bar & Center Hole-Punch Camera (shown in Pixel 10 Frame mode) -->
+      <div class="pixel10-statusbar" aria-hidden="true">
+        <span id="pixel10-clock" class="pixel10-clock">9:41</span>
+        <div class="pixel10-camera-cutout" title="Pixel 10 Front Camera Cutout"></div>
+        <div class="pixel10-status-icons">
+          <span>Google Fi 5G</span>
+          <span>120Hz</span>
+          <span>100%</span>
+        </div>
+      </div>
 
-            <div class="btn-row">
-              <button id="btn-wa-connect" type="button" class="btn btn-primary">
-                Connect WhatsApp
-              </button>
-              <button id="btn-wa-disconnect" type="button" class="btn btn-secondary" style="display: none;">
-                Disconnect
-              </button>
-              <button id="btn-wa-logout" type="button" class="btn btn-outline btn-sm" style="display: none;">
-                Reset Session
-              </button>
-            </div>
-
-            <div id="discovered-chats-wrapper" style="display: none; margin-top: 1rem;">
-              <label class="field-label">
-                <span>Discovered Chats (click to add to filter)</span>
-              </label>
-              <div id="discovered-chats-list" class="discovered-chats-list"></div>
-            </div>
-          </div>
-        </article>
-
-        <!-- Card 2: Personal Phone & Notification Settings -->
-        <article class="panel-card">
-          <div class="panel-header">
-            <div>
-              <h2 class="panel-title">2. Google Fi Phone &amp; SMS Alert Settings</h2>
-              <p class="panel-description">
-                Enter your Google Fi phone number to automatically receive SMS text alerts
-              </p>
-            </div>
-          </div>
-          <div class="panel-body">
-            <form id="config-form" class="form-grid">
-              <div class="field-group">
-                <label class="field-label" for="input-phone-number">
-                  <span>Your Google Fi Phone Number</span>
-                  <span class="field-hint">10-digit number (e.g. 555-123-4567)</span>
-                </label>
-                <input
-                  id="input-phone-number"
-                  type="tel"
-                  placeholder="555-123-4567"
-                  autocomplete="tel"
-                />
-              </div>
-
-              <div class="field-row">
-                <div class="field-group">
-                  <label class="field-label" for="select-channel">
-                    <span>Notification Delivery</span>
-                  </label>
-                  <select id="select-channel">
-                    <option value="sms">SMS Text Message (Google Fi via Textbelt)</option>
-                    <option value="whatsapp">WhatsApp Direct Message</option>
-                    <option value="both">Both (SMS Text + WhatsApp)</option>
-                  </select>
+      <main class="workspace-container">
+        <!-- Left Column: Pixel 10 APK + WhatsApp Link + Google Fi Settings -->
+        <section class="column-stack" aria-label="Pixel 10 APK, Connection, and Notification Settings">
+          <!-- Card 0: Downloadable Pixel 10 Android APK & On-Device Listener -->
+          <article id="section-apk" class="panel-card pixel-hero-card" data-nav-section="apk">
+            <div class="panel-header">
+              <div>
+                <div class="card-kicker-row">
+                  <span class="pixel-chip">Google Pixel 10 • Android 16 • Tensor G5</span>
+                  <span id="pixel-runtime-badge" class="pixel-chip subtle">Web + APK Ready</span>
                 </div>
-
-                <div class="field-group">
-                  <label class="field-label" for="select-detection-mode">
-                    <span>Event Detection Engine</span>
-                  </label>
-                  <select id="select-detection-mode">
-                    <option value="hybrid">Hybrid (AI + Chrono NLP Rules)</option>
-                    <option value="rules">Rule-Based Chrono NLP Only</option>
-                    <option value="ai">AI Extraction Only</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="field-group">
-                <label class="field-label" for="input-watched-chats">
-                  <span>Watched WhatsApp Chats / Groups</span>
-                  <span class="field-hint">Comma-separated names or * for all</span>
-                </label>
-                <input
-                  id="input-watched-chats"
-                  type="text"
-                  placeholder="* (or e.g. Phillips Family, Soccer Team)"
-                />
-              </div>
-
-              <label class="checkbox-row" for="checkbox-auto-notify">
-                <input id="checkbox-auto-notify" type="checkbox" checked />
-                <span>Automatically text my phone when a new event is detected</span>
-              </label>
-
-              <details class="settings-drawer">
-                <summary>Advanced: Textbelt SMS &amp; AI API Keys</summary>
-                <div class="form-grid">
-                  <div class="field-group">
-                    <label class="field-label" for="input-textbelt-key">
-                      <span>Textbelt API Key</span>
-                      <span class="field-hint">Defaults to "textbelt"</span>
-                    </label>
-                    <input
-                      id="input-textbelt-key"
-                      type="password"
-                      placeholder="textbelt"
-                      autocomplete="off"
-                    />
-                  </div>
-                  <div class="field-group">
-                    <label class="field-label" for="input-gemini-key">
-                      <span>Google Gemini API Key (Optional)</span>
-                      <span class="field-hint">gemini-2.5-flash</span>
-                    </label>
-                    <input
-                      id="input-gemini-key"
-                      type="password"
-                      placeholder="AIza..."
-                      autocomplete="off"
-                    />
-                  </div>
-                  <div class="field-group">
-                    <label class="field-label" for="input-openai-key">
-                      <span>OpenAI API Key (Optional)</span>
-                      <span class="field-hint">gpt-4o-mini</span>
-                    </label>
-                    <input
-                      id="input-openai-key"
-                      type="password"
-                      placeholder="sk-..."
-                      autocomplete="off"
-                    />
-                  </div>
-                </div>
-              </details>
-
-              <div class="btn-row">
-                <button id="btn-save-config" type="submit" class="btn btn-primary">
-                  Save Phone Number
-                </button>
-                <button id="btn-test-notify" type="button" class="btn btn-outline">
-                  Send Test SMS to Phone
-                </button>
-              </div>
-              <div id="config-feedback" class="feedback-banner" role="status"></div>
-            </form>
-          </div>
-        </article>
-      </section>
-
-      <!-- Right Column: Chat Scanner + Detected Events Feed -->
-      <section class="column-stack" aria-label="Chat Scanner and Detected Events">
-        <!-- Card 3: Scan WhatsApp Chat Export or Simulate Messages -->
-        <article class="panel-card">
-          <div class="panel-header">
-            <div>
-              <h2 class="panel-title">Scan WhatsApp Chat Log or Test Message</h2>
-              <p class="panel-description">
-                Paste a WhatsApp conversation, upload an exported <code>.txt</code> chat file, or load a sample family group chat
-              </p>
-            </div>
-            <div class="btn-row">
-              <button id="btn-load-sample" type="button" class="btn btn-secondary btn-sm">
-                Load Sample Phillips Chat
-              </button>
-              <label for="file-upload-chat" class="btn btn-outline btn-sm" style="cursor: pointer;">
-                Upload .txt Export
-              </label>
-              <input
-                id="file-upload-chat"
-                type="file"
-                accept=".txt,text/plain"
-                style="display: none;"
-              />
-            </div>
-          </div>
-          <div class="panel-body">
-            <form id="scan-form" class="form-grid">
-              <div class="field-row">
-                <div class="field-group">
-                  <label class="field-label" for="input-scan-chat-name">
-                    <span>WhatsApp Chat / Group Name</span>
-                  </label>
-                  <input
-                    id="input-scan-chat-name"
-                    type="text"
-                    value="Phillips Family & Activities Group"
-                    placeholder="e.g. Phillips Family Group"
-                  />
-                </div>
-                <div class="field-group" style="justify-content: flex-end;">
-                  <label class="checkbox-row" for="checkbox-scan-notify" style="margin-bottom: 0.4rem;">
-                    <input id="checkbox-scan-notify" type="checkbox" checked />
-                    <span>Text my Google Fi phone for newly detected events</span>
-                  </label>
-                </div>
-              </div>
-
-              <div class="field-group">
-                <label class="field-label" for="textarea-chat-log">
-                  <span>WhatsApp Chat Messages</span>
-                  <span class="field-hint">Supports iOS/Android WhatsApp exports or plain messages</span>
-                </label>
-                <textarea
-                  id="textarea-chat-log"
-                  placeholder="[11/08/26, 9:16:45 AM] Uncle Dave: Hey everyone, we're hosting the Phillips Family Sunday BBQ at Oak Creek Park this Sunday at 1:00 PM!"
-                ></textarea>
-              </div>
-
-              <div class="btn-row">
-                <button id="btn-scan-chat" type="submit" class="btn btn-primary">
-                  Scan Chat for Events
-                </button>
-                <button id="btn-clear-textarea" type="button" class="btn btn-secondary">
-                  Clear Text
-                </button>
-              </div>
-              <div id="scan-feedback" class="feedback-banner" role="status"></div>
-            </form>
-          </div>
-        </article>
-
-        <!-- Card 4: Detected Events Feed -->
-        <article class="panel-card">
-          <div class="panel-header">
-            <div>
-              <h2 class="panel-title">
-                Detected Chat Events (<span id="events-count-badge">0</span>)
-              </h2>
-              <p class="panel-description">
-                Events extracted from monitored WhatsApp chats and their SMS notification status
-              </p>
-            </div>
-            <button id="btn-clear-events" type="button" class="btn btn-secondary btn-sm">
-              Clear History
-            </button>
-          </div>
-          <div class="panel-body">
-            <div id="events-list" class="events-list">
-              <div class="empty-state">
-                <h3>No events detected yet</h3>
-                <p>
-                  Link your WhatsApp account to monitor live chats, or click
-                  <strong>Load Sample Phillips Chat</strong> above and run a scan to see event extraction in action.
+                <h2 class="panel-title">Google Pixel 10 Android APK &amp; Native Integration</h2>
+                <p class="panel-description">
+                  Install the signed Android APK directly on your Pixel 10 for background WhatsApp notification scanning, Share Sheet chat imports, and native Google Fi SMS delivery
                 </p>
               </div>
             </div>
-          </div>
-        </article>
+            <div class="panel-body">
+              <div class="apk-download-box">
+                <div class="apk-meta-main">
+                  <div class="apk-file-title">
+                    <strong>Phillips-WhatsApp-Notifier-Pixel10.apk</strong>
+                    <span id="apk-size-badge" class="badge badge-notified">Signed APK</span>
+                  </div>
+                  <p class="apk-specs-line">
+                    Package: <code>com.phillips.whatsappnotifier.pixel10</code> &bull; v2.0.0-pixel10 &bull; Target: Pixel 10 (6.3&quot; Actua OLED 1080&times;2424, 120Hz, API 35/36)
+                  </p>
+                  <p id="apk-sha256-line" class="apk-hash-line">
+                    SHA-256: <code id="apk-sha256-value">Verifying package signature...</code>
+                  </p>
+                </div>
 
-        <!-- Card 5: Live Scanner Activity Log -->
-        <article class="panel-card">
-          <div class="panel-header">
-            <div>
-              <h2 class="panel-title">Recent Scanner &amp; SMS Activity</h2>
+                <div class="btn-row apk-cta-row">
+                  <a
+                    id="btn-download-apk"
+                    href="/api/apk/download"
+                    download="Phillips-WhatsApp-Notifier-Pixel10.apk"
+                    class="btn btn-primary"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    <span>Download APK for Pixel 10</span>
+                  </a>
+                  <button id="btn-simulate-pixel-notif" type="button" class="btn btn-outline">
+                    Simulate Pixel 10 WhatsApp Alert
+                  </button>
+                  <button
+                    id="btn-pixel-notif-settings"
+                    type="button"
+                    class="btn btn-secondary btn-sm"
+                  >
+                    Pixel 10 Notification Access
+                  </button>
+                </div>
+              </div>
+
+              <div class="pixel-feature-pills">
+                <span class="feature-pill">On-Device NotificationListenerService</span>
+                <span class="feature-pill">Same-Phone 8-Digit Pairing</span>
+                <span class="feature-pill">WhatsApp Share Sheet Import</span>
+                <span class="feature-pill">Google Fi SmsManager + Textbelt</span>
+                <span class="feature-pill">120Hz Smooth Display</span>
+              </div>
+
+              <details class="settings-drawer" style="margin-top: 0.85rem;">
+                <summary>Scan QR on Pixel 10 to Download APK &amp; Installation Guide</summary>
+                <div class="apk-qr-drawer">
+                  <img
+                    id="apk-download-qr"
+                    src=""
+                    alt="QR Code to download Phillips WhatsApp Notifier APK on Pixel 10"
+                    style="display: none;"
+                  />
+                  <ol class="pixel-install-steps">
+                    <li>
+                      Tap <strong>Download APK for Pixel 10</strong> above (or scan the QR code with your Pixel 10 camera).
+                    </li>
+                    <li>
+                      Open <code>Phillips-WhatsApp-Notifier-Pixel10.apk</code> on your Pixel 10 and tap <strong>Install</strong>.
+                    </li>
+                    <li>
+                      <em>Optional on-device auto-scan:</em> In the app, tap <strong>Pixel 10 Notification Access</strong> and enable <strong>Phillips WhatsApp Notifier</strong> so incoming WhatsApp messages on your Pixel 10 are scanned automatically in the background.
+                    </li>
+                    <li>
+                      <em>Instant WhatsApp chat export:</em> In WhatsApp on your Pixel 10, open any chat &rarr; <strong>More &rarr; Export chat &rarr; Without media</strong> and select <strong>Phillips WhatsApp Notifier</strong> from the Android Share Sheet.
+                    </li>
+                  </ol>
+                </div>
+              </details>
+              <div id="apk-feedback" class="feedback-banner" role="status"></div>
             </div>
-          </div>
-          <div class="panel-body">
-            <ul id="activity-list" class="activity-list">
-              <li class="activity-item">
-                <span>System ready. Waiting for WhatsApp messages or chat scan...</span>
-              </li>
-            </ul>
-          </div>
-        </article>
-      </section>
-    </main>
+          </article>
 
-    <script src="/app.js"></script>
+          <!-- Card 1: Live WhatsApp Web Link (QR + Same-Phone 8-Digit Pairing Code for Pixel 10) -->
+          <article id="section-whatsapp" class="panel-card" data-nav-section="whatsapp">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">1. WhatsApp Chat Access (Pixel 10 Same-Phone or QR)</h2>
+                <p class="panel-description">
+                  Link WhatsApp using an 8-digit pairing code directly on your Pixel 10, or scan a QR code
+                </p>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div id="qr-container" class="qr-stage">
+                <p id="qr-instructions" class="qr-caption">
+                  On a <strong>Pixel 10</strong>? Click <strong>Get 8-Digit Pairing Code</strong> below to link WhatsApp on the same phone without needing to scan a QR code, or click <strong>Connect WhatsApp (QR)</strong>.
+                </p>
+                <img
+                  id="qr-image"
+                  src=""
+                  alt="WhatsApp Web Pairing QR Code"
+                  style="display: none;"
+                />
+
+                <!-- Same-Phone 8-Character Pairing Code Display for Pixel 10 -->
+                <div id="pairing-code-box" class="pairing-code-box" style="display: none;">
+                  <span class="pairing-code-label">Pixel 10 Same-Phone WhatsApp Pairing Code</span>
+                  <div class="pairing-code-row">
+                    <code id="pairing-code-value" class="pairing-code-value">----</code>
+                    <button id="btn-copy-pairing-code" type="button" class="btn btn-secondary btn-sm">
+                      Copy Code
+                    </button>
+                  </div>
+                  <p class="pairing-code-help">
+                    On your Pixel 10, open <strong>WhatsApp &rarr; Linked Devices &rarr; Link a Device &rarr; Link with phone number instead</strong> and paste this code.
+                  </p>
+                </div>
+              </div>
+
+              <div class="btn-row">
+                <button id="btn-wa-pair-code" type="button" class="btn btn-primary">
+                  Get 8-Digit Pairing Code (Pixel 10)
+                </button>
+                <button id="btn-wa-connect" type="button" class="btn btn-outline">
+                  Connect WhatsApp (QR)
+                </button>
+                <button
+                  id="btn-wa-disconnect"
+                  type="button"
+                  class="btn btn-secondary"
+                  style="display: none;"
+                >
+                  Disconnect
+                </button>
+                <button
+                  id="btn-wa-logout"
+                  type="button"
+                  class="btn btn-outline btn-sm"
+                  style="display: none;"
+                >
+                  Reset Session
+                </button>
+              </div>
+
+              <div id="discovered-chats-wrapper" style="display: none; margin-top: 1rem;">
+                <label class="field-label">
+                  <span>Discovered Chats (tap to add to filter)</span>
+                </label>
+                <div id="discovered-chats-list" class="discovered-chats-list"></div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 2: Personal Phone & Notification Settings -->
+          <article id="section-config" class="panel-card" data-nav-section="config">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">2. Google Fi Phone &amp; Pixel 10 SMS Alert Settings</h2>
+                <p class="panel-description">
+                  Enter your 10-digit Google Fi number on your Pixel 10 to receive automatic SMS event alerts
+                </p>
+              </div>
+            </div>
+            <div class="panel-body">
+              <form id="config-form" class="form-grid">
+                <div class="field-group">
+                  <label class="field-label" for="input-phone-number">
+                    <span>Your Pixel 10 Google Fi Phone Number</span>
+                    <span class="field-hint">10-digit number (e.g. 555-123-4567)</span>
+                  </label>
+                  <input
+                    id="input-phone-number"
+                    type="tel"
+                    inputmode="tel"
+                    placeholder="555-123-4567"
+                    autocomplete="tel"
+                  />
+                </div>
+
+                <div class="field-row">
+                  <div class="field-group">
+                    <label class="field-label" for="select-channel">
+                      <span>Notification Delivery</span>
+                    </label>
+                    <select id="select-channel">
+                      <option value="sms">SMS Text (Google Fi via Textbelt + Pixel 10 SIM)</option>
+                      <option value="whatsapp">WhatsApp Direct Message</option>
+                      <option value="both">Both (Google Fi SMS + WhatsApp)</option>
+                    </select>
+                  </div>
+
+                  <div class="field-group">
+                    <label class="field-label" for="select-detection-mode">
+                      <span>Event Detection Engine</span>
+                    </label>
+                    <select id="select-detection-mode">
+                      <option value="hybrid">Hybrid (Gemini 2.5 Flash + Chrono NLP)</option>
+                      <option value="rules">On-Device Chrono NLP Rules Only</option>
+                      <option value="ai">AI Extraction Only</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="field-group">
+                  <label class="field-label" for="input-watched-chats">
+                    <span>Watched WhatsApp Chats / Groups</span>
+                    <span class="field-hint">Comma-separated names or * for all</span>
+                  </label>
+                  <input
+                    id="input-watched-chats"
+                    type="text"
+                    placeholder="* (or e.g. Phillips Family, Soccer Team)"
+                  />
+                </div>
+
+                <label class="checkbox-row" for="checkbox-auto-notify">
+                  <input id="checkbox-auto-notify" type="checkbox" checked />
+                  <span>Automatically text my Pixel 10 when a new event is detected</span>
+                </label>
+
+                <details class="settings-drawer">
+                  <summary>Advanced: Textbelt SMS, Gemini 2.5 Flash &amp; Server Sync</summary>
+                  <div class="form-grid">
+                    <div class="field-group">
+                      <label class="field-label" for="input-textbelt-key">
+                        <span>Textbelt API Key</span>
+                        <span class="field-hint">Defaults to "textbelt"</span>
+                      </label>
+                      <input
+                        id="input-textbelt-key"
+                        type="password"
+                        placeholder="textbelt"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="field-group">
+                      <label class="field-label" for="input-gemini-key">
+                        <span>Google Gemini API Key (Optional)</span>
+                        <span class="field-hint">gemini-2.5-flash (Pixel 10 AI)</span>
+                      </label>
+                      <input
+                        id="input-gemini-key"
+                        type="password"
+                        placeholder="AIza..."
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div class="field-group">
+                      <label class="field-label" for="input-openai-key">
+                        <span>OpenAI API Key (Optional)</span>
+                        <span class="field-hint">gpt-4o-mini</span>
+                      </label>
+                      <input
+                        id="input-openai-key"
+                        type="password"
+                        placeholder="sk-..."
+                        autocomplete="off"
+                      />
+                    </div>
+                  </div>
+                </details>
+
+                <div class="btn-row">
+                  <button id="btn-save-config" type="submit" class="btn btn-primary">
+                    Save Phone Number
+                  </button>
+                  <button id="btn-test-notify" type="button" class="btn btn-outline">
+                    Send Test SMS to Phone
+                  </button>
+                </div>
+                <div id="config-feedback" class="feedback-banner" role="status"></div>
+              </form>
+            </div>
+          </article>
+        </section>
+
+        <!-- Right Column: Chat Scanner + Detected Events Feed -->
+        <section class="column-stack" aria-label="Chat Scanner and Detected Events">
+          <!-- Card 3: Scan WhatsApp Chat Export or Simulate Messages -->
+          <article id="section-scanner" class="panel-card" data-nav-section="scanner">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Scan WhatsApp Chat Log or Pixel 10 Export</h2>
+                <p class="panel-description">
+                  Paste a WhatsApp conversation, import an exported <code>.txt</code> chat from your Pixel 10, or load a sample family group chat
+                </p>
+              </div>
+              <div class="btn-row">
+                <button id="btn-load-sample" type="button" class="btn btn-secondary btn-sm">
+                  Load Sample Phillips Chat
+                </button>
+                <label
+                  for="file-upload-chat"
+                  class="btn btn-outline btn-sm"
+                  style="cursor: pointer;"
+                >
+                  Upload .txt Export
+                </label>
+                <input
+                  id="file-upload-chat"
+                  type="file"
+                  accept=".txt,text/plain"
+                  style="display: none;"
+                />
+              </div>
+            </div>
+            <div class="panel-body">
+              <form id="scan-form" class="form-grid">
+                <div class="field-row">
+                  <div class="field-group">
+                    <label class="field-label" for="input-scan-chat-name">
+                      <span>WhatsApp Chat / Group Name</span>
+                    </label>
+                    <input
+                      id="input-scan-chat-name"
+                      type="text"
+                      value="Phillips Family & Activities Group"
+                      placeholder="e.g. Phillips Family Group"
+                    />
+                  </div>
+                  <div class="field-group" style="justify-content: flex-end;">
+                    <label
+                      class="checkbox-row"
+                      for="checkbox-scan-notify"
+                      style="margin-bottom: 0.4rem;"
+                    >
+                      <input id="checkbox-scan-notify" type="checkbox" checked />
+                      <span>Text my Google Fi phone for newly detected events</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="field-group">
+                  <label class="field-label" for="textarea-chat-log">
+                    <span>WhatsApp Chat Messages</span>
+                    <span class="field-hint">Supports Pixel 10 Android &amp; iOS WhatsApp exports</span>
+                  </label>
+                  <textarea
+                    id="textarea-chat-log"
+                    placeholder="[11/08/26, 9:16:45 AM] Uncle Dave: Hey everyone, we're hosting the Phillips Family Sunday BBQ at Oak Creek Park this Sunday at 1:00 PM!"
+                  ></textarea>
+                </div>
+
+                <div class="btn-row">
+                  <button id="btn-scan-chat" type="submit" class="btn btn-primary">
+                    Scan Chat for Events
+                  </button>
+                  <button id="btn-clear-textarea" type="button" class="btn btn-secondary">
+                    Clear Text
+                  </button>
+                </div>
+                <div id="scan-feedback" class="feedback-banner" role="status"></div>
+              </form>
+            </div>
+          </article>
+
+          <!-- Card 4: Detected Events Feed -->
+          <article id="section-events" class="panel-card" data-nav-section="events">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">
+                  Detected Chat Events (<span id="events-count-badge">0</span>)
+                </h2>
+                <p class="panel-description">
+                  Events extracted from monitored WhatsApp chats with 1-tap Pixel 10 SMS &amp; Google Calendar actions
+                </p>
+              </div>
+              <button id="btn-clear-events" type="button" class="btn btn-secondary btn-sm">
+                Clear History
+              </button>
+            </div>
+            <div class="panel-body">
+              <div id="events-list" class="events-list">
+                <div class="empty-state">
+                  <h3>No events detected yet</h3>
+                  <p>
+                    Link your WhatsApp account, tap <strong>Simulate Pixel 10 WhatsApp Alert</strong>, or click
+                    <strong>Load Sample Phillips Chat</strong> above and run a scan to see event extraction in action.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 5: Live Scanner Activity Log -->
+          <article id="section-activity" class="panel-card" data-nav-section="events">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">Recent Pixel 10 Scanner &amp; SMS Activity</h2>
+              </div>
+            </div>
+            <div class="panel-body">
+              <ul id="activity-list" class="activity-list">
+                <li class="activity-item">
+                  <span>Pixel 10 Event Scanner ready. Waiting for WhatsApp messages or chat scan...</span>
+                </li>
+              </ul>
+            </div>
+          </article>
+        </section>
+      </main>
+
+      <!-- Material 3 Bottom Navigation Bar for Pixel 10 One-Handed Ergonomics -->
+      <nav id="pixel-bottom-nav" class="pixel-bottom-nav" aria-label="Pixel 10 Quick Navigation">
+        <button type="button" class="pixel-nav-item active" data-target="all">
+          <span class="pixel-nav-icon">&#9638;</span>
+          <span class="pixel-nav-label">All</span>
+        </button>
+        <button type="button" class="pixel-nav-item" data-target="apk">
+          <span class="pixel-nav-icon">&#8681;</span>
+          <span class="pixel-nav-label">Pixel APK</span>
+        </button>
+        <button type="button" class="pixel-nav-item" data-target="whatsapp">
+          <span class="pixel-nav-icon">&#128172;</span>
+          <span class="pixel-nav-label">WhatsApp</span>
+        </button>
+        <button type="button" class="pixel-nav-item" data-target="config">
+          <span class="pixel-nav-icon">&#128241;</span>
+          <span class="pixel-nav-label">Google Fi</span>
+        </button>
+        <button type="button" class="pixel-nav-item" data-target="scanner">
+          <span class="pixel-nav-icon">&#128269;</span>
+          <span class="pixel-nav-label">Scan</span>
+        </button>
+        <button type="button" class="pixel-nav-item" data-target="events">
+          <span class="pixel-nav-icon">&#128197;</span>
+          <span class="pixel-nav-label">Events</span>
+        </button>
+      </nav>
+
+      <!-- Android 16 Edge-to-Edge Gesture Pill Indicator (shown in Pixel 10 Frame mode) -->
+      <div class="pixel10-gesture-bar" aria-hidden="true">
+        <div class="pixel10-gesture-pill"></div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
   </body>
 </html>
