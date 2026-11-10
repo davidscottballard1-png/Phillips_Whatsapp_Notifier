@@ -61,20 +61,29 @@ Open `http://localhost:3000` in your browser:
 
 ---
 
-## 24/7 Cloud Deployment (Railway, Render, or Fly.io)
+## 24/7 Cloud Deployment (Oracle Cloud Free Tier, Railway, Render, or Fly.io)
 
 All persistent state — saved phone number/settings (`config.json`), detected events (`events.json`), and the linked WhatsApp session (`wa-session/`) — is stored inside a single directory (`DATA_DIR`, which defaults to `/app/data` in production). When the container restarts, the server automatically detects the saved WhatsApp session and reconnects in the background.
 
-### Option A: Railway (Easiest)
+### Option A: Oracle Cloud / Google Cloud "Always Free" VM ($0/month Forever — 1 Command)
+Create a free Ubuntu VM on [Oracle Cloud Free Tier](https://www.oracle.com/cloud/free/) or [Google Cloud Free Tier](https://cloud.google.com/free), open its SSH terminal, and paste this **single command**:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/davidscottballard1-png/Phillips_Whatsapp_Notifier/main/install.sh | bash
+```
+
+It automatically installs Docker, builds the app with persistent storage (`~/Phillips_Whatsapp_Notifier/data`), starts a Cloudflare HTTPS tunnel (so you don't even have to configure firewall ports), and prints out the `https://....trycloudflare.com` link to send to your friend.
+
+### Option B: Railway
 1. Go to [railway.app](https://railway.app) → **New Project** → **Deploy from GitHub repo** → select `davidscottballard1-png/Phillips_Whatsapp_Notifier`.
 2. Right-click your deployed service → **Attach Volume** → set Mount Path to **`/app/data`**.
 3. Open **Settings → Networking → Generate Domain** to get your `https://...up.railway.app` URL.
 
-### Option B: Render (Blueprint Auto-Setup)
+### Option C: Render (Blueprint Auto-Setup)
 1. Go to [render.com](https://render.com) → **New +** → **Blueprint** → select `davidscottballard1-png/Phillips_Whatsapp_Notifier`.
 2. Render reads [`render.yaml`](./render.yaml) and automatically creates the Docker service and attaches the `/app/data` persistent disk.
 
-### Option C: Fly.io
+### Option D: Fly.io
 ```bash
 fly launch --copy-config --no-deploy
 fly volumes create phillips_whatsapp_data --size 1 --region iad

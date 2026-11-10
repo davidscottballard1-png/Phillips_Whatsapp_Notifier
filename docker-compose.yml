@@ -1,0 +1,22 @@
+services:
+  whatsapp-notifier:
+    build: .
+    container_name: whatsapp-notifier
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATA_DIR=/app/data
+    volumes:
+      - ./data:/app/data
+
+  whatsapp-tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: whatsapp-tunnel
+    restart: always
+    network_mode: host
+    command: tunnel --no-autoupdate --url http://localhost:3000
+    depends_on:
+      - whatsapp-notifier
